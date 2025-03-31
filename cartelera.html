@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartelera de Cine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Estilos (todo integrado aquí) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #121212;
+            color: #eee;
+        }
+
+        header {
+            background-color: #232323;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 3px solid #ffd700;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #ffd700;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Contenedor de Búsqueda --- */
+        #busqueda-container {
+            display: flex;
+            justify-content: center; /* Centrar horizontalmente */
+            align-items: center; /* Centrar verticalmente (si es necesario) */
+            gap: 1rem; /* Espacio entre los elementos */
+            padding: 1rem;
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #333;
+        }
+
+        #busqueda-container input[type="date"],
+        #busqueda-container select {
+            padding: 0.5rem;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1rem;
+        }
+         #busqueda-container input, select, button {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-size: 1rem;
+            margin-right: 0.5rem; /* Espacio entre elementos */
+        }
+
+
+        #cartelera {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ... (resto de estilos de .pelicula, .pelicula-info, etc. - sin cambios) ... */
+         .pelicula {
+            width: 250px;
+            margin: 1rem;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .pelicula:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        }
+
+
+        .pelicula img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .pelicula-info {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .pelicula-info h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2em;
+             color: #ffd700;
+            font-weight: bold;
+        }
+
+        .pelicula-info p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        /* Estilos para el modal (ventana emergente) */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000; /* Muy alto para estar encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Fondo semitransparente */
+            overflow: auto; /* Scroll si el contenido es muy largo */
+        }
+
+        .modal-contenido {
+            background-color: #1e1e1e;
+            margin: 5% auto; /* Centrado y con margen superior */
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            max-width: 80%; /* Ancho máximo del contenido */
+            position: relative; /* Para posicionar el botón de cerrar */
+        }
+         .modal-contenido img {
+            width: 300px; /* o el tamaño que prefieras */
+            height: auto;
+            float: left; /* Flotar la imagen a la izquierda */
+            margin-right: 1rem; /* Espacio entre la imagen y el texto */
+            border-radius: 8px;
+        }
+
+        .modal-contenido::after {
+            content: "";
+            display: table;
+            clear: both; /* Limpiar el float después de la imagen y el texto */
+        }
+
+
+        .cerrar {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cerrar:hover,
+        .cerrar:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+         .btn-volver {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #ffd700;
+            color: #000;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .btn-volver:hover{
+            background-color: #121212;
+            color: #ffd700;
+            border: solid 2px  #ffd700;
+        }
+
+        /* --- Estilos para el Footer --- */
+        footer {
+            background-color: #232323;
+            padding: 2rem;
+            text-align: center;
+            border-top: 3px solid #ffd700;
+            margin-top: 2rem; /* Espacio entre la cartelera y el footer */
+        }
+
+        .footer-contenido {
+            display: flex; /* Usar flexbox */
+            justify-content: space-between; /* Distribuir el espacio */
+            align-items: center; /* Centrar verticalmente */
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+        .footer-info p {
+            margin: 0.5rem 0;
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        .redes-sociales a {
+            display: inline-block; /* Para que tengan ancho y alto */
+            margin: 0 0.5rem;
+            color: #ffd700;
+            font-size: 1.5em; /* Iconos más grandes */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .redes-sociales a:hover {
+            color: #fff; /* Cambiar color al pasar el ratón */
+        }
+         .footer-derecha{
+             text-align: right; /* Alinear a la derecha */
+        }
+
+        .footer-derecha a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+         .footer-derecha a:hover{
+            color: #fff;
+
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cartelera de Cine</h1>
+    </header>
+
+    <div id="busqueda-container">
+        <input type="date" id="fecha-busqueda" placeholder="Buscar por fecha">
+        <select id="genero-busqueda">
+            <option value="">Todos los géneros</option>
+            <option value="Acción">Acción</option>
+            <option value="Comedia">Comedia</option>
+            <option value="Drama">Drama</option>
+            <option value="Ciencia Ficción">Ciencia Ficción</option>
+            <option value="Terror">Terror</option>
+            </select>
+         <button onclick="filtrarPeliculas()">Buscar</button>
+    </div>
+
+    <section id="cartelera">
+        </section>
+
+    <div id="miModal" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal()">&times;</span>
+            <img id="modal-imagen" src="" alt="">
+            <h2 id="modal-titulo"></h2>
+            <p><strong>Fecha de Estreno:</strong> <span id="modal-fecha"></span></p>
+            <p><strong>Horarios:</strong> <span id="modal-horarios"></span></p>
+            <p><strong>Género:</strong><span id="modal-genero"></span></p>
+            <p><strong>Sinopsis:</strong> <span id="modal-sinopsis"></span></p>
+             <h3>Avance</h3>
+            <iframe id="modal-trailer" width="560" height="315" src="" frameborder="0" allowfullscreen></iframe>
+             <a href="#" class="btn-volver" onclick="cerrarModal()">Volver a la Cartelera</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-contenido">
+            <div class="footer-info">
+                <p>CineMax &copy; 2025</p> <p>Dirección: Calle Principal #123, Ciudad</p>
+                <p>Teléfono: (123) 456-7890</p>
+                <p>Email: info@cinemax.com</p>
+            </div>
+
+            <div class="redes-sociales">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+
+            <div class="footer-derecha">
+                <a href="{{ url_for('login') }}">Iniciar Sesión</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Obtener las películas desde Flask (pasadas como variable)
+        let peliculas = {{ peliculas | tojson }};  // <-- LÍNEA CLAVE: Recibe datos de Flask
+
+        function mostrarPeliculas(peliculasMostrar) {
+            const carteleraSection = document.getElementById('cartelera');
+            if (!carteleraSection) {
+                console.error("Error: Elemento con id 'cartelera' no encontrado.");
+                return;
+            }
+            carteleraSection.innerHTML = ''; // Limpiar cartelera actual
+
+            if (!Array.isArray(peliculasMostrar)) {
+                console.error("Error: 'peliculasMostrar' no es un array válido.", peliculasMostrar);
+                return;
+            }
+
+            peliculasMostrar.forEach(pelicula => {
+                if (!pelicula || typeof pelicula !== 'object') {
+                    console.warn("Advertencia: Se encontró un elemento inválido en el array de películas.", pelicula);
+                    return; // Saltar este elemento inválido
+                }
+
+                const peliculaDiv = document.createElement('div');
+                peliculaDiv.className = 'pelicula';
+                // Asegurarse de que pelicula.id exista antes de asignar onclick
+                if (pelicula.id !== undefined) {
+                   peliculaDiv.onclick = () => mostrarDetalle(pelicula.id);
+                } else {
+                    console.warn("Advertencia: Película sin ID encontrada.", pelicula);
+                }
+
+
+                const img = document.createElement('img');
+                // Verificar que pelicula.imagen sea una cadena antes de asignarla
+                img.src = typeof pelicula.imagen === 'string' ? pelicula.imagen : ''; // <-- Usa pelicula.imagen
+                img.alt = typeof pelicula.titulo === 'string' ? pelicula.titulo : 'Imagen de película';
+                 // Añadir manejo de error si la imagen no carga
+                 img.onerror = function() {
+                    console.error(`Error al cargar imagen: ${this.src}`);
+                    this.alt = `Error al cargar imagen para ${pelicula.titulo || 'película desconocida'}`;
+                    // Opcional: Poner una imagen por defecto
+                    // this.src = '/static/images/default_poster.png';
+                };
+
+                peliculaDiv.appendChild(img);
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'pelicula-info';
+
+                const h2 = document.createElement('h2');
+                h2.textContent = typeof pelicula.titulo === 'string' ? pelicula.titulo : 'Título no disponible';
+                infoDiv.appendChild(h2);
+
+                const pFecha = document.createElement('p');
+                pFecha.textContent = `Estreno: ${typeof pelicula.fecha === 'string' ? pelicula.fecha : 'N/D'}`; // <-- Usa pelicula.fecha
+                infoDiv.appendChild(pFecha);
+
+                const pGenero = document.createElement('p');
+                pGenero.textContent = typeof pelicula.genero === 'string' ? pelicula.genero : 'Género no disponible';  // <-- Usa pelicula.genero
+                infoDiv.appendChild(pGenero);
+
+                peliculaDiv.appendChild(infoDiv);
+                carteleraSection.appendChild(peliculaDiv);
+            });
+        }
+
+        function filtrarPeliculas() {
+            const fechaBusqueda = document.getElementById('fecha-busqueda').value;
+            const generoBusqueda = document.getElementById('genero-busqueda').value;
+
+            // Verificar que 'peliculas' sea un array
+             if (!Array.isArray(peliculas)) {
+                console.error("Error: La variable global 'peliculas' no es un array.");
+                return;
+            }
+
+            const peliculasFiltradas = peliculas.filter(pelicula => {
+                // Añadir chequeos por si pelicula.fecha o pelicula.genero no existen
+                const coincideFecha = !fechaBusqueda || (pelicula && pelicula.fecha === fechaBusqueda);
+                const coincideGenero = !generoBusqueda || (pelicula && pelicula.genero === generoBusqueda);
+                return coincideFecha && coincideGenero;
+            });
+            mostrarPeliculas(peliculasFiltradas); // Mostrar las películas filtradas
+        }
+
+
+        function mostrarDetalle(peliculaId) {
+             // Verificar que 'peliculas' sea un array
+             if (!Array.isArray(peliculas)) {
+                console.error("Error: La variable global 'peliculas' no es un array al buscar detalle.");
+                return;
+            }
+            const pelicula = peliculas.find(p => p && p.id === peliculaId); // Asegurar que p exista
+            if (!pelicula) {
+                console.error(`Error: No se encontró la película con ID ${peliculaId}`);
+                return;
+            }
+
+
+            // Usar valores por defecto si alguna propiedad no existe
+            document.getElementById("modal-imagen").src = pelicula.imagen || '';
+            document.getElementById("modal-titulo").textContent = pelicula.titulo || 'Título no disponible';
+            document.getElementById("modal-fecha").textContent = pelicula.fecha || 'N/D';
+            document.getElementById("modal-horarios").textContent = pelicula.horarios || 'No disponibles';
+            document.getElementById("modal-genero").textContent = pelicula.genero || 'No disponible';
+            document.getElementById("modal-sinopsis").textContent = pelicula.sinopsis || 'No disponible';
+            document.getElementById("modal-trailer").src = pelicula.trailer || ''; // Vaciar si no hay trailer
+
+            document.getElementById("miModal").style.display = "block";
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModal() {
+            document.getElementById("miModal").style.display = "none";
+            const trailerFrame = document.getElementById("modal-trailer");
+            if (trailerFrame) {
+               trailerFrame.src = ""; // Detener el video
+            }
+            document.body.style.overflow = 'auto';
+        }
+
+        // Mostrar todas las películas al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar que 'peliculas' se haya inicializado correctamente
+            if (typeof peliculas !== 'undefined' && Array.isArray(peliculas)) {
+                mostrarPeliculas(peliculas);  // <-- Llamar a mostrarPeliculas con los datos
+            } else {
+                console.error("Error: La variable 'peliculas' no está definida o no es un array después de cargar el DOM.", peliculas);
+                // Opcional: Mostrar un mensaje al usuario en la #cartelera
+                const carteleraSection = document.getElementById('cartelera');
+                if(carteleraSection) carteleraSection.innerHTML = '<p style="color: red;">Error al cargar las películas.</p>';
+            }
+
+            // Agregar event listeners a los campos de búsqueda (con verificación)
+            const fechaInput = document.getElementById('fecha-busqueda');
+            const generoSelect = document.getElementById('genero-busqueda');
+            const buscarBtn = document.querySelector('#busqueda-container button'); // Seleccionar botón
+
+            if (fechaInput) fechaInput.addEventListener('change', filtrarPeliculas);
+            if (generoSelect) generoSelect.addEventListener('change', filtrarPeliculas);
+            // El botón es opcional si quieres que filtre al cambiar fecha/genero
+            // if (buscarBtn) buscarBtn.addEventListener('click', filtrarPeliculas);
+
+        });
+    </script>
+</body>
+</html>

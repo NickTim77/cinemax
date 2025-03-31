@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartelera de Cine</title>
+    <style>
+        /* Estilos (todo integrado aquí) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+            margin: 0;
+            background-color: #121212; /* Fondo oscuro, más cinematográfico */
+            color: #eee;
+        }
+
+        header {
+            background-color: #232323;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 3px solid #ffd700; /* Línea amarilla, como en cines */
+        }
+
+        header h1 {
+            margin: 0;
+            color: #ffd700;
+            font-size: 2.5em; /* Título más grande */
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Sombra sutil */
+        }
+
+        #cartelera {
+            display: flex;
+            flex-wrap: wrap; /* Para que las películas se ajusten */
+            justify-content: space-around; /* Espaciado uniforme */
+            padding: 2rem;
+            max-width: 1200px;  /* Ancho máximo para la cartelera */
+            margin: 0 auto;     /* Centrar la cartelera */
+
+        }
+
+        .pelicula {
+            width: 250px; /* Ancho fijo para cada película */
+            margin: 1rem;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 10px; /* Bordes más redondeados */
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+            transition: transform 0.2s ease; /* Transición suave */
+            cursor: pointer; /* Indica que es clickable */
+        }
+
+        .pelicula:hover {
+            transform: scale(1.05); /* Agrandar un poco al pasar el ratón */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* Sombra más intensa al hover */
+        }
+
+
+        .pelicula img {
+            width: 100%;
+            height: 350px; /* Altura fija para las imágenes (ajusta según tus imágenes) */
+            object-fit: cover; /* Cubrir el espacio sin distorsionar */
+            display: block;
+        }
+
+        .pelicula-info {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .pelicula-info h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2em;
+             color: #ffd700;
+            font-weight: bold;
+        }
+
+        .pelicula-info p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        /* Estilos para el modal (ventana emergente) */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000; /* Muy alto para estar encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Fondo semitransparente */
+            overflow: auto; /* Scroll si el contenido es muy largo */
+        }
+
+        .modal-contenido {
+            background-color: #1e1e1e;
+            margin: 5% auto; /* Centrado y con margen superior */
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            max-width: 80%; /* Ancho máximo del contenido */
+            position: relative; /* Para posicionar el botón de cerrar */
+        }
+         .modal-contenido img {
+            width: 300px; /* o el tamaño que prefieras */
+            height: auto;
+            float: left; /* Flotar la imagen a la izquierda */
+            margin-right: 1rem; /* Espacio entre la imagen y el texto */
+            border-radius: 8px;
+        }
+
+        .modal-contenido::after {
+            content: "";
+            display: table;
+            clear: both; /* Limpiar el float después de la imagen y el texto */
+        }
+
+
+        .cerrar {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cerrar:hover,
+        .cerrar:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+        .btn-volver {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #ffd700;
+            color: #000;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .btn-volver:hover{
+            background-color: #121212;
+            color: #ffd700;
+            border: solid 2px  #ffd700;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cartelera de Cine</h1>
+    </header>
+
+    <section id="cartelera">
+        <div class="pelicula" onclick="mostrarDetalle(1)">
+            <img src="imagen_pelicula1.jpg" alt="Título de la Película 1">
+            <div class="pelicula-info">
+                <h2>Título Película 1</h2>
+                <p>Estreno: 2024-03-15</p>
+            </div>
+        </div>
+
+        <div class="pelicula" onclick="mostrarDetalle(2)">
+           <img src="imagen_pelicula2.jpg" alt="Título de la Película 2">
+            <div class="pelicula-info">
+                <h2>Título Película 2</h2>
+                <p>Estreno: 2024-03-22</p>
+            </div>
+        </div>
+         <div class="pelicula" onclick="mostrarDetalle(3)">
+           <img src="imagen_pelicula3.jpg" alt="Título de la Película 3">
+            <div class="pelicula-info">
+                <h2>Título Película 3</h2>
+                <p>Estreno: 2024-03-22</p>
+            </div>
+        </div>
+
+    </section>
+
+
+    <div id="miModal" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarModal()">&times;</span>
+            <img id="modal-imagen" src="" alt="">
+            <h2 id="modal-titulo"></h2>
+            <p><strong>Fecha de Estreno:</strong> <span id="modal-fecha"></span></p>
+            <p><strong>Horarios:</strong> <span id="modal-horarios"></span></p>
+            <p><strong>Sinopsis:</strong> <span id="modal-sinopsis"></span></p>
+             <h3>Avance</h3>
+            <iframe id="modal-trailer" width="560" height="315" src="" frameborder="0" allowfullscreen></iframe>
+              <a href="#" class="btn-volver" onclick="cerrarModal()">Volver a la Cartelera</a>
+        </div>
+    </div>
+
+
+    <script>
+        // Datos de las películas (podrían venir de una base de datos)
+        const peliculas = [
+            {
+                id: 1,
+                titulo: "Título Película 1",
+                fecha: "2024-03-15",
+                horarios: "16:00, 18:30, 21:00",
+                sinopsis: "Una emocionante aventura...",
+                imagen: "imagen_pelicula1.jpg",
+                trailer: "https://www.youtube.com/embed/URL_TRAILER_1"
+            },
+             {
+                id: 2,
+                titulo: "Título Película 2",
+                fecha: "2024-03-15",
+                horarios: "16:00, 18:30, 21:00",
+                sinopsis: "Una emocionante aventura...",
+                imagen: "imagen_pelicula2.jpg",
+                trailer: "https://www.youtube.com/embed/URL_TRAILER_2"
+            },
+            {
+                id: 3,
+                titulo: "Título Película 3",
+                fecha: "2024-03-15",
+                horarios: "16:00, 18:30, 21:00",
+                sinopsis: "Una emocionante aventura...",
+                imagen: "imagen_pelicula3.jpg",
+                trailer: "https://www.youtube.com/embed/URL_TRAILER_3"
+            }
+
+        ];
+
+        function mostrarDetalle(peliculaId) {
+            const pelicula = peliculas.find(p => p.id === peliculaId);
+            if (!pelicula) return; // No se encontró la película
+
+            document.getElementById("modal-imagen").src = pelicula.imagen;
+            document.getElementById("modal-titulo").textContent = pelicula.titulo;
+            document.getElementById("modal-fecha").textContent = pelicula.fecha;
+            document.getElementById("modal-horarios").textContent = pelicula.horarios;
+            document.getElementById("modal-sinopsis").textContent = pelicula.sinopsis;
+            document.getElementById("modal-trailer").src = pelicula.trailer;
+
+
+            document.getElementById("miModal").style.display = "block";
+             document.body.style.overflow = 'hidden'; // Evita el scroll de la página principal
+        }
+
+        function cerrarModal() {
+            document.getElementById("miModal").style.display = "none";
+            document.getElementById("modal-trailer").src = ""; // Detener el video
+             document.body.style.overflow = 'auto';
+        }
+
+
+    </script>
+</body>
+</html>
