@@ -1,24 +1,33 @@
 #!/usr/bin/env bash
-# exit on error
+# Indica a Render que use Bash y que falle si un comando falla
 set -o errexit
 
-# ---- Instalar dependencias del sistema operativo ----
-echo "--- Actualizando paquetes e instalando dependencias del sistema (ODBC)... ---"
-apt-get update
-# Instalar dependencias generales que pyodbc podría necesitar para compilarse y el driver manager
-apt-get install -y --no-install-recommends unixodbc-dev gcc g++ build-essential
-# Instalar driver ODBC de Microsoft (SIGUE LAS INSTRUCCIONES OFICIALES DE MICROSOFT PARA DEBIAN/UBUNTU)
-# Los siguientes comandos son EJEMPLOS y PUEDEN CAMBIAR. Busca "Install the Microsoft ODBC driver for SQL Server (Linux)"
-# Asegúrate de instalar la versión 17 o 18 según necesites.
-# Ejemplo para v18 en Debian/Ubuntu (VERIFICA ESTO EN LA DOC DE MICROSOFT):
-curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-curl https://packages.microsoft.com/config/debian/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list
-apt-get update
-ACCEPT_EULA=Y apt-get install -y msodbcsql18 # O msodbcsql17 si prefieres esa versión
+echo "--- [Build Script] Actualizando paquetes e instalando dependencias base (curl, gnupg, odbc)... ---"
+apt-get update -y # Actualiza la lista de paquetes disponibles
+# Instala herramientas necesarias para añadir repositorios y para pyodbc
+apt-get install -y --no-install-recommends curl apt-transport-https gnupg unixodbc-dev gcc g++ build-essential
 
-echo "--- Dependencias del sistema instaladas ---"
+echo "--- [Build Script] Instalando Driver MS ODBC 18 (¡VERIFICAR COMANDOS OFICIALES!)... ---"
+# --------------------------------------------------------------------------
+# --- ¡¡IMPORTANTE!! ---
+# --- Busca en Google "Install Microsoft ODBC driver 18 Linux Ubuntu" ---
+# --- Ve a la página OFICIAL de Microsoft y copia/pega aquí los comandos ---
+# --- EXACTOS y ACTUALIZADOS para Ubuntu (o Debian si aplica).             ---
+# --- Los siguientes son solo un EJEMPLO y pueden cambiar.                ---
+# --- Asegúrate de incluir ACCEPT_EULA=Y donde sea necesario.            ---
+# --------------------------------------------------------------------------
+# Ejemplo de Comandos (¡NO USAR SIN VERIFICARLOS EN LA DOC OFICIAL!):
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+# Asegúrate que la URL de config sea para la versión correcta de Debian/Ubuntu que usa Render
+curl -fsSL https://packages.microsoft.com/config/debian/11/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
+apt-get update -y
+ACCEPT_EULA=Y apt-get install -y msodbcsql17 # O msodbcsql17 si prefieres
 
-# ---- Instalar dependencias de Python ----
-echo "--- Instalando dependencias de Python (requirements.txt)... ---"
+# --------------------------------------------------------------------------
+echo "--- [Build Script] Instalación del Driver MS ODBC intentada ---"
+
+echo "--- [Build Script] Instalando dependencias de Python (requirements.txt)... ---"
 pip install -r requirements.txt
-echo "--- Dependencias de Python instaladas ---"
+echo "--- [Build Script] Dependencias de Python instaladas ---"
+
+echo "--- [Build Script] Script completado ---"
