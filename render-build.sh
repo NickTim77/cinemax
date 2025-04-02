@@ -7,7 +7,7 @@ apt-get update -y # Actualiza la lista de paquetes disponibles
 # Instala herramientas necesarias para añadir repositorios y para pyodbc
 apt-get install -y --no-install-recommends curl apt-transport-https gnupg unixodbc-dev gcc g++ build-essential
 
-echo "--- [Build Script] Instalando Driver MS ODBC 18 (¡VERIFICAR COMANDOS OFICIALES!)... ---"
+echo "--- [Build Script] Instalando Driver MS ODBC 17 (¡VERIFICAR COMANDOS OFICIALES!)... ---"
 # --------------------------------------------------------------------------
 # --- ¡¡IMPORTANTE!! ---
 # --- Busca en Google "Install Microsoft ODBC driver 18 Linux Ubuntu" ---
