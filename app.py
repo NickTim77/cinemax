@@ -24,13 +24,80 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'una_clave_secreta_MUY_segura_y_aleatoria')
 
 # Configuración de la base de datos SQL Server con autenticación de Windows
-SERVER = os.getenv('SQL_SERVER', r'DESKTOP-K2COC2B')
-DATABASE = os.getenv('SQL_DATABASE', 'datab_base')
-DRIVER = '{ODBC Driver 17 for SQL Server}'
-
-
+#SERVER = os.getenv('SQL_SERVER', r'DESKTOP-K2COC2B')
+#DATABASE = os.getenv('SQL_DATABASE', 'datab_base')
+#DRIVER = '{ODBC Driver 17 for SQL Server}'
 # Cadena de conexión con autenticación de Windows
-CONNECTION_STRING = f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};Trusted_Connection=yes'
+#CONNECTION_STRING = f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};Trusted_Connection=yes'
+
+# --- EN TU app.py, REEMPLAZA LA SECCIÓN DE CONFIGURACIÓN DE BD POR ESTO: ---
+
+# --- Configuración de Base de Datos ---
+
+# Lee los detalles desde las Variables de Entorno que configurarás en Render
+DB_SERVER = os.getenv('DATABASE_SERVER')   # Render le dará el valor 'db16404.databaseasp.net'
+DB_NAME = os.getenv('DATABASE_NAME')       # Render le dará el valor 'db16404'
+DB_USER = os.getenv('DATABASE_USER')       # Render le dará el valor 'db16404'
+DB_PASSWORD = os.getenv('DATABASE_PASSWORD') # Render le dará la contraseña que configures
+# Asegúrate que este nombre de driver coincida EXACTAMENTE con el instalado en Render
+# Puedes ponerlo en una variable de entorno también si prefieres
+DB_DRIVER = os.getenv('DATABASE_DRIVER', '{ODBC Driver 18 for SQL Server}') # Asume Driver 18
+
+# Variable global para guardar la cadena de conexión final
+CONNECTION_STRING = None
+
+# Verifica si todas las variables necesarias fueron cargadas desde el entorno de Render
+if DB_SERVER and DB_NAME and DB_USER and DB_PASSWORD:
+    # Construye la cadena de conexión para Autenticación SQL Server
+    CONNECTION_STRING = (
+        f'DRIVER={DB_DRIVER};'
+        f'SERVER={DB_SERVER};'    # Nombre del servidor de Hostinger
+        f'DATABASE={DB_NAME};'    # Nombre de la BD en Hostinger
+        f'UID={DB_USER};'         # Usuario de la BD en Hostinger
+        f'PWD={DB_PASSWORD};'     # Contraseña de la BD en Hostinger
+        # --- Opciones importantes para conexiones remotas/seguras ---
+        f'Encrypt=yes;' # Intenta forzar encriptación (muy recomendado)
+        f'TrustServerCertificate=no;' # Intenta validar certificado (más seguro)
+        # NOTA: Si la conexión falla específicamente por SSL/TLS, como último recurso podrías probar TrustServerCertificate=yes, pero es menos seguro.
+        f'Connection Timeout=30;' # Tiempo de espera para conectar (en segundos)
+    )
+    # Imprime en los logs de Render para confirmar (sin la contraseña)
+    app.logger.info(f"Usando Connection String: DRIVER={DB_DRIVER};SERVER={DB_SERVER};DATABASE={DB_NAME};UID={DB_USER};PWD=****")
+else:
+    # Si faltan variables de entorno en Render, la app fallará al intentar conectar
+    app.logger.critical("¡ERROR FATAL! Faltan variables de entorno para la conexión a la base de datos (DATABASE_SERVER, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD). La aplicación no puede funcionar.")
+    # Podrías incluso lanzar una excepción aquí para detener el inicio si la BD es esencial
+    # raise ValueError("Variables de entorno de base de datos no configuradas")
+
+# --- Fin de la Configuración de Base de Datos ---
+
+# --- Tu función get_db_connection() (Asegúrate de tener solo UNA definición) ---
+def get_db_connection():
+    """Obtiene una conexión a la base de datos con manejo de excepciones."""
+    global CONNECTION_STRING # Para usar la variable definida arriba
+    if not CONNECTION_STRING:
+        app.logger.error("Intento de conexión DB fallido: CONNECTION_STRING no configurada.")
+        return None
+    try:
+        # Intenta conectar usando la cadena global
+        connection = pyodbc.connect(CONNECTION_STRING, timeout=20) # Timeout para la ejecución
+        app.logger.info("Conexión a BD establecida exitosamente.") # Log para saber que conectó
+        return connection
+    except pyodbc.Error as e:
+        # Error específico de pyodbc (incluye el driver no encontrado, timeout, login failed, etc.)
+        error_info = traceback.format_exc()
+        app.logger.error(f"Error CRÍTICO pyodbc al conectar: {e}\n{error_info}")
+        if mail: send_error_email(f"Error CRÍTICO pyodbc al conectar: {e}\n{error_info}")
+        return None
+    except Exception as e:
+        # Cualquier otro error inesperado durante la conexión
+        error_info = traceback.format_exc()
+        app.logger.error(f"Error INESPERADO al conectar: {e}\n{error_info}")
+        if mail: send_error_email(f"Error INESPERADO al conectar: {e}\n{error_info}")
+        return None
+
+# --- El resto de tu código app.py (rutas, etc.) ---
+# ...
 
 # Configuración para envío de correos
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
