@@ -26,7 +26,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'una_clave_secreta_MUY_segura_y_aleator
 # Configuración de la base de datos SQL Server con autenticación de Windows
 SERVER = os.getenv('SQL_SERVER', r'DESKTOP-K2COC2B')
 DATABASE = os.getenv('SQL_DATABASE', 'datab_base')
-DRIVER = '{ODBC Driver 17 for SQL Server}'
+
 
 # Cadena de conexión con autenticación de Windows
 CONNECTION_STRING = f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};Trusted_Connection=yes'
