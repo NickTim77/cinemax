@@ -12,7 +12,7 @@ import imaplib
 import email
 import traceback # Importar para obtener detalles del error
 import logging # Mejor usar logging que print para errores
-###################################################################
+#############################################################################3
 
 logging.basicConfig(level=logging.ERROR) # Puedes ajustar el nivel (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
@@ -32,42 +32,45 @@ app.secret_key = os.getenv('SECRET_KEY', 'una_clave_secreta_MUY_segura_y_aleator
 
 # --- EN TU app.py, REEMPLAZA LA SECCIÓN DE CONFIGURACIÓN DE BD POR ESTO: ---
 
-# --- Configuración de Base de Datos ---
+# --- Configuración de Base de Datos --- CORRECTA ---
 
-# Lee los detalles desde las Variables de Entorno que configurarás en Render
-DB_SERVER = os.getenv('DATABASE_SERVER')   # Render le dará el valor 'db16404.databaseasp.net'
-DB_NAME = os.getenv('DATABASE_NAME')       # Render le dará el valor 'db16404'
-DB_USER = os.getenv('DATABASE_USER')       # Render le dará el valor 'db16404'
-DB_PASSWORD = os.getenv('DATABASE_PASSWORD') # Render le dará la contraseña que configures
-# Asegúrate que este nombre de driver coincida EXACTAMENTE con el instalado en Render
-# Puedes ponerlo en una variable de entorno también si prefieres
-DB_DRIVER = os.getenv('DATABASE_DRIVER', '{ODBC Driver 18 for SQL Server}') # Asume Driver 18
+# Define los NOMBRES de las variables de entorno que buscarás en Render
+DB_SERVER_ENV_VAR = 'DATABASE_SERVER'
+DB_NAME_ENV_VAR = 'DATABASE_NAME'
+DB_USER_ENV_VAR = 'DATABASE_USER'
+DB_PASSWORD_ENV_VAR = 'DATABASE_PASSWORD'
+DB_DRIVER_ENV_VAR = 'DATABASE_DRIVER' # Opcional, puedes hardcodear el driver si prefieres
+
+# Lee los valores de las Variables de Entorno usando los NOMBRES correctos
+DB_SERVER = os.getenv(DB_SERVER_ENV_VAR)
+DB_NAME = os.getenv(DB_NAME_ENV_VAR)
+DB_USER = os.getenv(DB_USER_ENV_VAR)
+DB_PASSWORD = os.getenv(DB_PASSWORD_ENV_VAR)
+# Asegúrate que este driver coincida con el que instalaste en render-build.sh
+DB_DRIVER = os.getenv(DB_DRIVER_ENV_VAR, '{ODBC Driver 18 for SQL Server}') # Asume Driver 18
 
 # Variable global para guardar la cadena de conexión final
 CONNECTION_STRING = None
 
-# Verifica si todas las variables necesarias fueron cargadas desde el entorno de Render
+# Verifica si todas las variables necesarias fueron cargadas desde el entorno
 if DB_SERVER and DB_NAME and DB_USER and DB_PASSWORD:
     # Construye la cadena de conexión para Autenticación SQL Server
     CONNECTION_STRING = (
         f'DRIVER={DB_DRIVER};'
-        f'SERVER={DB_SERVER};'    # Nombre del servidor de Hostinger
-        f'DATABASE={DB_NAME};'    # Nombre de la BD en Hostinger
-        f'UID={DB_USER};'         # Usuario de la BD en Hostinger
-        f'PWD={DB_PASSWORD};'     # Contraseña de la BD en Hostinger
+        f'SERVER={DB_SERVER};'    # Valor leído de DATABASE_SERVER
+        f'DATABASE={DB_NAME};'    # Valor leído de DATABASE_NAME
+        f'UID={DB_USER};'         # Valor leído de DATABASE_USER
+        f'PWD={DB_PASSWORD};'     # Valor leído de DATABASE_PASSWORD
         # --- Opciones importantes para conexiones remotas/seguras ---
-        f'Encrypt=yes;' # Intenta forzar encriptación (muy recomendado)
-        f'TrustServerCertificate=no;' # Intenta validar certificado (más seguro)
-        # NOTA: Si la conexión falla específicamente por SSL/TLS, como último recurso podrías probar TrustServerCertificate=yes, pero es menos seguro.
-        f'Connection Timeout=30;' # Tiempo de espera para conectar (en segundos)
+        f'Encrypt=yes;'
+        f'TrustServerCertificate=no;'
+        f'Connection Timeout=30;'
     )
-    # Imprime en los logs de Render para confirmar (sin la contraseña)
-    app.logger.info(f"Usando Connection String: DRIVER={DB_DRIVER};SERVER={DB_SERVER};DATABASE={DB_NAME};UID={DB_USER};PWD=****")
+    app.logger.info(f"Usando Connection String: DRIVER={DB_DRIVER};SERVER={DB_SERVER};DATABASE={DB_NAME};UID={DB_USER};PWD=****") # Log correcto
 else:
-    # Si faltan variables de entorno en Render, la app fallará al intentar conectar
-    app.logger.critical("¡ERROR FATAL! Faltan variables de entorno para la conexión a la base de datos (DATABASE_SERVER, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD). La aplicación no puede funcionar.")
-    # Podrías incluso lanzar una excepción aquí para detener el inicio si la BD es esencial
-    # raise ValueError("Variables de entorno de base de datos no configuradas")
+    # Si faltan variables de entorno en Render, fallará aquí
+    app.logger.critical(f"¡ERROR FATAL! Faltan variables de entorno para la conexión a la base de datos. Requeridas: {DB_SERVER_ENV_VAR}, {DB_NAME_ENV_VAR}, {DB_USER_ENV_VAR}, {DB_PASSWORD_ENV_VAR}")
+    CONNECTION_STRING = None
 
 # --- Fin de la Configuración de Base de Datos ---
 
