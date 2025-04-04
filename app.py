@@ -12,7 +12,7 @@ import imaplib
 import email
 import traceback # Importar para obtener detalles del error
 import logging # Mejor usar logging que print para errores
-#############################################################################3
+###################################################################
 
 logging.basicConfig(level=logging.ERROR) # Puedes ajustar el nivel (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
