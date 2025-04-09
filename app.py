@@ -61,9 +61,9 @@ else:
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
-app.config['MAIL_USERNAME'] = os.getenv('23300101@uttt.edu.mx') # Leer de Env Var
-app.config['MAIL_PASSWORD'] = os.getenv('HSG2084H') # Leer de Env Var
-ADMIN_EMAIL = os.getenv('23300101@uttt.edu.mx') # Leer de Env Var
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME') # Leer de Env Var
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD') # Leer de Env Var
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL') # Leer de Env Var
 
 mail = None
 if app.config['MAIL_USERNAME'] and app.config['MAIL_PASSWORD'] and ADMIN_EMAIL:
