@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Reservar Boleto</title>
+</head>
+<body>
+    <h1>Reservar Boletos para {{ pelicula.titulo }}</h1>
+    <form method="POST">
+        <label>Nombre:</label>
+        <input type="text" name="usuario" required>
+        
+        <label>Horario:</label>
+        <select name="horario">
+            {% for horario in horarios %}
+                <option value="{{ horario }}">{{ horario }}</option>
+            {% endfor %}
+        </select>
+        
+        <label>Cantidad:</label>
+        <input type="number" name="cantidad" min="1" required>
+        
+        <button type="submit">Reservar</button>
+    </form>
+</body>
+</html>
